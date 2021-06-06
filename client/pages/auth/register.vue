@@ -90,21 +90,24 @@ export default {
     errors: [],
   }),
   methods: {
-    async register() {
-      try {
-        let errors = [];
-        await this.$axios.$get("api/sanctum/csrf-cookie");
-        await this.$axios
-          .$post("/auth/register", this.form)
-          .then((resp) => {})
+    async login() {
+      return this.$auth.loginWith("laravelSanctum", { data: this.form });
+    },
+    register() {
+      this.$axios.$get("api/sanctum/csrf-cookie").then((response) => {
+        this.$axios
+          .$post("/register", this.form)
+          .then((res) => {
+            console.log("register successfull",res);
+          })
           .catch((err) => {
-            if ((err.response.status = 422)) {
-              errors = err.response.data.errors;
+            let errorData = err.response;
+            if ((errorData.status = 422)) {
+              this.errors = errorData.data.errors;
+              console.error(this.errors);
             }
           });
-        this.errors = errors;
-        await this.$auth.loginWith("laravelSanctum", { data: this.form });
-      } catch (error) {}
+      });
     },
   },
 };
